@@ -23,7 +23,7 @@ async def simulateWork(duration: int = 5, body: Dict[str, Any] = None):
 def _exit_process(exit_code: int) -> None:
     # This function is called to exit the process after the response is sent, to finish the job.
     time.sleep(0.1) # Small delay to ensure response has flushed
-    os._exit(exit_code)
+    os._exit(exit_code) # Exit the process with the exit code, use os._exit instead of sys.exit to suppress ASGI application exception
 
 @app.post("/job")
 async def example_endpoint(background_tasks: BackgroundTasks, body: Dict[str, Any] = None, duration: int = 5, failed: str = "false"):
