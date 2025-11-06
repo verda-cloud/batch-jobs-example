@@ -43,9 +43,12 @@ async def example_endpoint(background_tasks: BackgroundTasks, body: Dict[str, An
         message = "Job completed successfully"
         logger.info(message)
         background_tasks.add_task(_exit_process, 0) # exit after response is sent with a zero code to trigger a success
-        return {"success": True, "message": message, "executionTime": duration, "timestamp": time.time()} # optional: return a success response
+        return {"success": True, "message": message, "executionTime": duration, "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")} # optional: return a success response
 
-
+# Health check endpoint is required for batch jobs
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000, log_level="info")

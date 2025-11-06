@@ -12,6 +12,7 @@ This application is specifically designed to be an example for a batch job app b
 - Providing success and failure scenarios for testing job completion handling
 - Exiting the process
 - Generating logs during execution for monitoring and debugging
+- Exposing a GET /health endpoint which is required for batch jobs
 
 ## API Endpoint
 
@@ -23,6 +24,10 @@ Executes a test job with configurable parameters.
 
 - `duration` (optional): Number of seconds to run the job. Default: 5 seconds
 - `failed` (optional): Set to 'true' or '1' to simulate job failure
+
+### GET /health
+
+A mandatory endpoint to make sure the app is running and is ready to accept a job
 
 **Examples:**
 

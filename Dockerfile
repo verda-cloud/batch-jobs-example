@@ -1,5 +1,10 @@
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
+# Override inherited labels
+LABEL org.opencontainers.image.description="A simple example app for containers batch jobs"
+LABEL org.opencontainers.image.source="https://github.com/verda-cloud/batch-jobs-example"
+LABEL org.opencontainers.image.title="Batch Jobs Example"
+
 # PYTHONDONTWRITEBYTECODE=1: disable .pyc bytecode files to keep layers clean
 # PYTHONUNBUFFERED=1: unbuffer stdout/stderr so logs flush immediately
 ENV PYTHONDONTWRITEBYTECODE=1 \
