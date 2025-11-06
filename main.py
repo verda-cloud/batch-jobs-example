@@ -1,4 +1,5 @@
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import JSONResponse
 from typing import Dict, Any
 import uvicorn
 import asyncio
@@ -30,7 +31,17 @@ async def example_endpoint(background_tasks: BackgroundTasks, body: Dict[str, An
     logger.info(f"Running job with duration of {duration} seconds, will fail: {failed}")
     logger.info(f"Request payload: {body}")
 
-    await simulateWork(duration, body) # run the job
+    try:
+        # Run the job
+        await simulateWork(duration, body)
+    except Exception as e:
+        message = f"Job failed due to an unexpected error: {str(e)}"
+        logger.error(message)
+        background_tasks.add_task(_exit_process, 1) # exit after response is sent with a non-zero code to trigger a failure
+        return JSONResponse(
+            status_code=500,
+            content={"detail": message}
+        )
 
     # The app must exit in order for the job to be considered completed
     # We add a background task to exit the app after the response is sent, otherwise the app will keep running until it hits the deadline and be considered failed
@@ -38,7 +49,12 @@ async def example_endpoint(background_tasks: BackgroundTasks, body: Dict[str, An
         message = "Job failed as requested via failed parameter"
         logger.error(message)
         background_tasks.add_task(_exit_process, 1) # exit after response is sent with a non-zero code to trigger a failure
-        raise HTTPException(status_code=500, detail=message) # throw 500 error to trigger a failure
+        
+        # Return a 500 response manually (don't raise HTTPException)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": message}
+        )
     else:
         message = "Job completed successfully"
         logger.info(message)
@@ -47,7 +63,7 @@ async def example_endpoint(background_tasks: BackgroundTasks, body: Dict[str, An
 
 # Health check endpoint is required for batch jobs
 @app.get("/health")
-async def health_check():
+def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
